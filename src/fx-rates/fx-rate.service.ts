@@ -1,11 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { CACHE_KEY, TTL_EXCHANGE_RATE_MILLI_SECS, TTL_EXCHANGE_RATE_SECS } from 'src/config';
+import {
+  CACHE_KEY,
+  TTL_EXCHANGE_RATE_MILLI_SECS,
+  TTL_EXCHANGE_RATE_SECS,
+} from 'src/config';
 import { FxRateQuery, HttpService } from 'src/http/http.service';
 import axios, { AxiosResponse } from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 import * as NodeCache from 'node-cache';
-
-export type FxRateResponseType = { quoteId: string; expiry_at: string, fxRate: string };
+import { FxConversionResponseType, FxRateResponseType } from 'src/types';
 
 @Injectable()
 export class FxRateService {
@@ -20,37 +23,49 @@ export class FxRateService {
     toCurrency: string,
   ): Promise<FxRateResponseType | null> {
     try {
-    console.log('in service');
-    const cacheKey = this.generateCacheKey(fromCurrency, toCurrency);
-    const cachedFxRate = this.mycache.get(cacheKey) as any;
-    if (cachedFxRate) {
-      return cachedFxRate;
-    }
-    const query: FxRateQuery = {
-      function: 'CURRENCY_EXCHANGE_RATE',
-      fromCurrency: fromCurrency,
-      toCurrency: toCurrency,
-    };
-    const url = HttpService.getFxRateUrl(query);
-    const response: AxiosResponse = await axios.get(url);
-    console.warn('Response.data:->', response.data);
-    const exchangeRate =
-      response.data['Realtime Currency Exchange Rate']['5. Exchange Rate'];
-    const currentTime = new Date().getTime();
-    this.mycache.set(cacheKey, exchangeRate, TTL_EXCHANGE_RATE_SECS);
-    return {
-      quoteId: this.getQuoteId(),
-      expiry_at: this.getExpiryAt(currentTime),
-      fxRate: exchangeRate
-    };
-  }
-    catch (error) {
+      console.log('in service');
+      const cacheKey = this.generateCacheKey(fromCurrency, toCurrency);
+      const cachedFxRate = this.mycache.get(cacheKey) as any;
+      if (cachedFxRate) {
+        return cachedFxRate;
+      }
+      const query: FxRateQuery = {
+        function: 'CURRENCY_EXCHANGE_RATE',
+        fromCurrency: fromCurrency,
+        toCurrency: toCurrency,
+      };
+      const url = HttpService.getFxRateUrl(query);
+      const response: AxiosResponse = await axios.get(url);
+      console.warn('Response.data:->', response.data);
+      const exchangeRate =
+        response.data['Realtime Currency Exchange Rate']['5. Exchange Rate'];
+      const currentTime = new Date().getTime();
+      this.mycache.set(cacheKey, exchangeRate, TTL_EXCHANGE_RATE_SECS);
+      return {
+        quoteId: this.getQuoteId(),
+        expiry_at: this.getExpiryAt(currentTime),
+        fxRate: exchangeRate,
+      };
+    } catch (error) {
       console.error('Could not get fx rate due to error: ', error);
       return null;
     }
-
   }
-  
+
+  public async convertFXRate(
+    fromCurrency: string,
+    toCurrency: string,
+    amount: number,
+  ): Promise<FxConversionResponseType> {
+    const conversionRate = (await this.getFxRates(fromCurrency, toCurrency)).fxRate;
+    if (conversionRate === undefined) {
+      throw new Error(
+        'Conversion rate not available for the specified currencies',
+      );
+    }
+    const convertedAmount = amount * parseInt(conversionRate);
+    return { convertedAmount: convertedAmount , currency: toCurrency};
+  }
 
   private generateCacheKey(fromCurrency: string, toCurrency: string): string {
     return `${CACHE_KEY}_${fromCurrency}_${toCurrency}`;
@@ -65,12 +80,12 @@ export class FxRateService {
   private getExpiryAt(currentTime: number): string {
     const expiryTimestamp = currentTime + TTL_EXCHANGE_RATE_MILLI_SECS;
     const expiryDate = new Date(expiryTimestamp);
-    const intlFormat = new Intl.DateTimeFormat("en-uk", {
-      dateStyle: "short",
-      timeStyle: "full"
+    const intlFormat = new Intl.DateTimeFormat('en-uk', {
+      dateStyle: 'short',
+      timeStyle: 'full',
     });
     const formattedExpiry = intlFormat.format(expiryDate);
-  
+
     return formattedExpiry;
   }
 }
