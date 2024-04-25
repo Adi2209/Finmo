@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { API_URLS, BASE_URL, CONVERSION_RATE } from '../config';
-import { ConversionRateService } from 'src/conversion-rates/conversion-rate.service';
+import { BASE_URL } from '../config';
 
-export type ConversionRateQuery =
+export type FxRateQuery =
 	{
 		function: string, fromCurrency: string, toCurrency: string
 	}
@@ -10,7 +9,7 @@ export type ConversionRateQuery =
 @Injectable()
 export class HttpService {
 
-	public static getConversionRateUrl (query: ConversionRateQuery) : string {
+	public static getFxRateUrl (query: FxRateQuery) : string {
 		const queryString = `function=${query.function}&from_currency=${query.fromCurrency}&to_currency=${query.toCurrency}&apikey=${process.env.API_KEY}`;
 		const fullUrl = `${BASE_URL}query?${queryString}`;
 		return fullUrl;
@@ -18,5 +17,5 @@ export class HttpService {
 }
 
 /**
- * var url = 'http://localhost:3000/conversion-rates?function=CURRENCY_EXCHANGE_RATE&fromCurrency=USD&toCurrency=JPY&apikey=IEPLM8223DZGZ4EI';
+ * var url = 'http://localhost:3000/fx-rates?function=CURRENCY_EXCHANGE_RATE&fromCurrency=USD&toCurrency=JPY&apikey=IEPLM8223DZGZ4EI';
  */

@@ -1,16 +1,16 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ConversionRatesController } from './conversion-rates/conversion-rates.controller';
+import { FxRatesController } from './fx-rates/fx-rates.controller';
 import { HttpController } from './http/http.controller';
-import { ConversionRateService } from './conversion-rates/conversion-rate.service';
+import { FxRateService } from './fx-rates/fx-rate.service';
 import { HttpService } from './http/http.service';
-import { ConversionRateModule } from './conversion-rates/conersion-rate.module';
+import { FxRateModule } from './fx-rates/fx-rate.module';
 import { HttpModule } from './http/http.module';
 
 @Module({
-  imports: [ConversionRateModule, HttpModule],
-  controllers: [AppController, ConversionRatesController, HttpController],
-  providers: [AppService, ConversionRateService, HttpService],
+  imports: [FxRateModule, HttpModule],
+  controllers: [AppController, FxRatesController, HttpController],
+  providers: [AppService, FxRateService, HttpService],
 })
 export class AppModule {}
