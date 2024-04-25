@@ -10,6 +10,8 @@ export const CACHE_KEY = 'fxRates';
 
 export const TTL_EXCHANGE_RATE_SECS = 30;
 
+export const TTL_EXCHANGE_RATE_MILLI_SECS = 30000;
+
 
 
   

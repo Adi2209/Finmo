@@ -1,4 +1,5 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, Res } from '@nestjs/common';
+import { Response } from 'express';
 import { FxRateService } from './fx-rate.service';
 
 @Controller('fx-rates')
@@ -9,15 +10,12 @@ export class FxRatesController {
   async getFxRates(
     @Query('fromCurrency') fromCurrency: string,
     @Query('toCurrency') toCurrency: string,
-  ): Promise<string> {
-    try {
-      return this.fxRateService.getFxRates(
-        fromCurrency,
-        toCurrency,
-      );
-    } catch (error) {
-      console.error('Could not get fx rate due to error: ', error);
-      throw error;
-    }
+    @Res() res: Response,
+  ): Promise<void> {
+    const response  = await this.fxRateService.getFxRates(
+      fromCurrency,
+      toCurrency,
+    );
+    response === null ? res.status(500).json(response) : res.json(response);
   }
 }
