@@ -3,6 +3,13 @@ export const API_URLS = {
   };
 
 export const BASE_URL = 'https://www.alphavantage.co/';
+
 export const CONVERSION_RATE = 'conversion-rate';
+
+export const CACHE_KEY = 'conversionRates';
+
+export const TTL_EXCHANGE_RATE_SECS = 30;
+
+
 
   

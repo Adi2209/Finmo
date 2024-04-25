@@ -11,14 +11,12 @@ export class ConversionRatesController {
     @Query('toCurrency') toCurrency: string,
   ): Promise<string> {
     try {
-      console.log('Here COntroler');
       return this.conversionRateService.getConversionRates(
         fromCurrency,
         toCurrency,
       );
     } catch (error) {
-      console.log(error);
-      throw error;
+      console.error('Could not get conversion rate due to error: ',error);
     }
   }
 }
