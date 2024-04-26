@@ -13,7 +13,7 @@ export class FxRatesController {
     @Query('toCurrency') toCurrency: string,
     @Res() res: Response,
   ): Promise<void> {
-    const response  = await this.fxRateService.getFxRates(
+    const response = await this.fxRateService.getFxRates(
       fromCurrency,
       toCurrency,
     );
@@ -26,7 +26,12 @@ export class FxRatesController {
     @Res() res: Response,
   ): Promise<void> {
     console.log('covnersion controler');
-    const response  = await this.fxRateService.convertFXRate(requestBody.fromCurrency,requestBody.toCurrency,requestBody.amount);
+    const response = await this.fxRateService.convertFXRate(
+      requestBody.fromCurrency,
+      requestBody.toCurrency,
+      requestBody.amount,
+      requestBody.quoteId,
+    );
     response === null ? res.status(500).json(response) : res.json(response);
   }
 }

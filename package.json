@@ -24,6 +24,7 @@
     "@nestjs/core": "^10.0.0",
     "@nestjs/platform-express": "^10.0.0",
     "axios": "^1.6.8",
+    "cryptr": "^6.3.0",
     "date-and-time": "^3.1.1",
     "dotenv": "^16.4.5",
     "node-cache": "^5.1.2",

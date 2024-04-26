@@ -7,10 +7,11 @@ import { FxRateService } from './fx-rates/fx-rate.service';
 import { HttpService } from './http/http.service';
 import { FxRateModule } from './fx-rates/fx-rate.module';
 import { HttpModule } from './http/http.module';
+import { CrypterService } from './crypter.service';
 
 @Module({
   imports: [FxRateModule, HttpModule],
   controllers: [AppController, FxRatesController, HttpController],
-  providers: [AppService, FxRateService, HttpService],
+  providers: [AppService, FxRateService, HttpService, CrypterService],
 })
 export class AppModule {}
