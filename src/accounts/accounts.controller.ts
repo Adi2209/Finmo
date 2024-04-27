@@ -4,7 +4,9 @@ import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateAccountsDto } from '../dto/createAccounts.dto';
 import { TopUpAccountsDto } from 'src/dto/topupAccounts.dto';
 import { BalanceAccountsDto } from 'src/dto/balanceAccounts.dto';
+import { SkipThrottle } from '@nestjs/throttler';
 
+@SkipThrottle()
 @Controller('accounts')
 @ApiTags('Accounts')
 export class AccountsController {

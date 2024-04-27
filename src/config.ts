@@ -12,6 +12,10 @@ export const TTL_EXCHANGE_RATE_SECS = 30;
 
 export const TTL_EXCHANGE_RATE_MILLI_SECS = 30000;
 
+export const TTL_RATE_LIMITING_MS = 60000;
+
+export const RATE_LIMITS = 15;
+
 
 
   
