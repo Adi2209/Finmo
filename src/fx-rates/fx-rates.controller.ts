@@ -2,7 +2,9 @@ import { Body, Controller, Get, Post, Query, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { FxRateService } from './fx-rate.service';
 import { ConversionRateRequestType } from 'src/types';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('FX-Rates')
 @Controller()
 export class FxRatesController {
   constructor(private readonly fxRateService: FxRateService) {}

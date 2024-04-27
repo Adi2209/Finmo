@@ -1,39 +1,55 @@
-import { Body, Controller, Get, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, Query } from '@nestjs/common';
 import { AccountsService } from './accounts.service';
 import { CurrencyAmountMap } from 'src/types';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { CreateAccountsDto } from '../dto/createAccounts.dto';
+import { TopUpAccountsDto } from 'src/dto/topupAccounts.dto';
+import { BalanceAccountsDto } from 'src/dto/balanceAccounts.dto';
 
 @Controller('accounts')
+@ApiTags('Accounts')
 export class AccountsController {
   constructor(private readonly accountsService: AccountsService) {}
 
   @Post()
+  @ApiResponse({
+    status:201,
+    description: 'Account Created Successfully',
+    type: CreateAccountsDto
+  })
   async addAccount(
-    @Body('username') username: string,
-    @Body('email') email: string,
-    @Body('password') password: string,
-    @Body('balance') balance: CurrencyAmountMap,
+    @Body() request: CreateAccountsDto
   ) {
     const newuserId = await this.accountsService.createAccount(
-      username,
-      email,
-      password,
-      balance,
+      request.username,
+      request.email,
+      request.password,
+      request.balance,
     );
     return { id: newuserId };
   }
 
   @Put('topup')
+  @ApiResponse({
+    status: 200,
+    description: 'Balance Updated Successfully',
+    type: TopUpAccountsDto
+  })
   async topUp(
-    @Body('id') userId: string,
-    @Body('balance') balance: CurrencyAmountMap,
+    @Body() request: TopUpAccountsDto
   ) {
-    const response = await this.accountsService.topUpAccount(userId, balance);
+    const response = await this.accountsService.topUpAccount(request.id, request.balance);
     return response;
   }
 
   @Get('balance')
-  async getBalance(@Body('id') userId: string) {
-    const response = await this.accountsService.getBalance(userId);
+  @ApiResponse({
+    status: 200,
+    description: 'Balance fetched Successfully',
+    type: BalanceAccountsDto
+  })
+  async getBalance(@Body() request: BalanceAccountsDto) {
+    const response = await this.accountsService.getBalance(request.id);
     return response;
   }
 }
