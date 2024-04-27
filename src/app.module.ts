@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { FxRatesController } from './fx-rates/fx-rates.controller';
@@ -15,6 +15,7 @@ import { AccountsModule } from './accounts/accounts.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { RATE_LIMITS, TTL_RATE_LIMITING_MS } from './config';
 import { APP_GUARD } from '@nestjs/core';
+import { IpTrackingMiddleware } from './ip/ip-tracking.middleware';
 
 @Module({
   imports: [
@@ -46,4 +47,10 @@ import { APP_GUARD } from '@nestjs/core';
     { provide: APP_GUARD, useClass: ThrottlerGuard },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(IpTrackingMiddleware)
+      .forRoutes('*');
+  }
+}
