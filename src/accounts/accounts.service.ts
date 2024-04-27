@@ -1,8 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CurrencyAmountMap, AccountResponseType } from 'src/types';
 import { Accounts } from './accounts.model';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class AccountsService {
@@ -16,12 +21,19 @@ export class AccountsService {
     password: string,
     balance: CurrencyAmountMap,
   ): Promise<string> {
+    const user = await this.accountsModel.findOne({ email: email });
+    if (user) {
+      throw new BadRequestException(
+        'Sorry a user with this email already exists',
+      );
+    }
+    const hashedPassword = await bcrypt.hash(password, 10);
     const newAccount = await this.accountsModel.create({
       username,
       email,
-      password,
+      password: hashedPassword,
+      balance
     });
-    newAccount.balance = balance;
     await newAccount.save();
     return newAccount._id.toString();
   }

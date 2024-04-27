@@ -1,6 +1,5 @@
-import { Body, Controller, Get, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put } from '@nestjs/common';
 import { AccountsService } from './accounts.service';
-import { CurrencyAmountMap } from 'src/types';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateAccountsDto } from '../dto/createAccounts.dto';
 import { TopUpAccountsDto } from 'src/dto/topupAccounts.dto';
