@@ -9,3 +9,12 @@ export type FxRateResponseType = { quoteId: string; expiry_at: string, fxRate: s
 
 export type FxConversionResponseType = { convertedAmount: number; currency: string};
 
+export type CurrencyAmountMap = { [currency: string]: number };
+
+export type AccountResponseType =  {
+  id: string,
+  username: string,
+  email: string,
+  balance : CurrencyAmountMap
+}
+
