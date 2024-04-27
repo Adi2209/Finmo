@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import {
+  BASE_URL,
   CACHE_KEY,
   TTL_EXCHANGE_RATE_MILLI_SECS,
   TTL_EXCHANGE_RATE_SECS,
 } from 'src/config';
-import { FxRateQuery, HttpService } from 'src/http/http.service';
 import axios, { AxiosResponse } from 'axios';
 import NodeCache from 'node-cache';
-import { FxConversionResponseType, FxRateResponseType } from 'src/types';
+import { FxConversionResponseType, FxRateQuery, FxRateResponseType } from 'src/types';
 import { CrypterService } from 'src/crypter.service';
 
 @Injectable()
@@ -34,7 +34,7 @@ export class FxRateService {
         fromCurrency: fromCurrency,
         toCurrency: toCurrency,
       };
-      const url = HttpService.getFxRateUrl(query);
+      const url = this.getFxRateUrl(query);
       const response: AxiosResponse = await axios.get(url);
       const currentTime = new Date().getTime();
       const fxRateResponse = {
@@ -71,6 +71,12 @@ export class FxRateService {
       fxRate: conversionRate,
     };
   }
+
+  private getFxRateUrl (query: FxRateQuery) : string {
+		const queryString = `function=${query.function}&from_currency=${query.fromCurrency}&to_currency=${query.toCurrency}&apikey=${process.env.API_KEY}`;
+		const fullUrl = `${BASE_URL}query?${queryString}`;
+		return fullUrl;
+	}
 
   private getFxRateFromQuoteId(quoteId: string): string | null {
     const cacheKey = new CrypterService().decrypt(quoteId);

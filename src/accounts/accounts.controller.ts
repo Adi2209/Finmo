@@ -50,6 +50,7 @@ export class AccountsController {
     type: BalanceAccountsDto
   })
   async getBalance(@Body() request: BalanceAccountsDto) {
+    console.log('in balanceget');
     const response = await this.accountsService.getBalance(request.id);
     return response;
   }
