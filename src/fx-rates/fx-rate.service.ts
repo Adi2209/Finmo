@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import {
   BASE_URL,
   CACHE_KEY,
@@ -7,23 +7,24 @@ import {
 } from 'src/config';
 import axios, { AxiosResponse } from 'axios';
 import NodeCache from 'node-cache';
-import { FxConversionResponseType, FxRateQuery, FxRateResponseType } from 'src/types';
+import {
+  FxConversionResponseType,
+  FxRateQuery,
+  FxRateResponseType,
+} from 'src/types';
 import { CrypterService } from 'src/crypter.service';
 
 @Injectable()
 export class FxRateService {
-  private readonly mycache: NodeCache;
+  private readonly mycache: NodeCache = new NodeCache();
 
-  constructor() {
-    this.mycache = new NodeCache();
-  }
+  private readonly logger: Logger = new Logger('FxRateService');
 
   public async getFxRates(
     fromCurrency: string,
     toCurrency: string,
   ): Promise<FxRateResponseType | null> {
     try {
-      console.log('in Fx service');
       const cacheKey = this.generateCacheKey(fromCurrency, toCurrency);
       const cachedFxRate = this.mycache.get(cacheKey) as FxRateResponseType;
       if (cachedFxRate) {
@@ -47,7 +48,7 @@ export class FxRateService {
       console.log('Inside Cache', this.mycache.data);
       return fxRateResponse;
     } catch (error) {
-      console.error('Could not get fx rate due to error: ', error);
+      this.logger.error('Could not get fx rate due to error: ', error);
       return null;
     }
   }
@@ -61,7 +62,8 @@ export class FxRateService {
     console.log('quoteid', quoteId);
     let conversionRate = this.getFxRateFromQuoteId(quoteId);
     if (conversionRate === null) {
-      throw new Error('No fx rate found for the given quoteId');
+      this.logger.warn('No fx rate found for the given quoteId');
+      throw new NotFoundException('No fx rate found for the given quoteId');
       // conversionRate = (await this.getFxRates(fromCurrency,toCurrency)).fxRate;
     }
     const convertedAmount = amount * parseFloat(conversionRate);
@@ -72,11 +74,11 @@ export class FxRateService {
     };
   }
 
-  private getFxRateUrl (query: FxRateQuery) : string {
-		const queryString = `function=${query.function}&from_currency=${query.fromCurrency}&to_currency=${query.toCurrency}&apikey=${process.env.API_KEY}`;
-		const fullUrl = `${BASE_URL}query?${queryString}`;
-		return fullUrl;
-	}
+  private getFxRateUrl(query: FxRateQuery): string {
+    const queryString = `function=${query.function}&from_currency=${query.fromCurrency}&to_currency=${query.toCurrency}&apikey=${process.env.API_KEY}`;
+    const fullUrl = `${BASE_URL}query?${queryString}`;
+    return fullUrl;
+  }
 
   private getFxRateFromQuoteId(quoteId: string): string | null {
     const cacheKey = new CrypterService().decrypt(quoteId);
