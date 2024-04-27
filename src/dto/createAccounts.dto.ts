@@ -12,8 +12,9 @@ import { CurrencyAmountMap } from 'src/types';
 export class CreateAccountsDto {
 
   @ApiResponseProperty()
+  @ApiProperty({description: 'id of the user',example: '662d12e2de0c81ef3a9878c1'})
   @IsString()
-  userId: string;
+  id: string;
 
   @ApiProperty({description: 'Username of the user',example: 'Harry'})
   @IsNotEmpty()

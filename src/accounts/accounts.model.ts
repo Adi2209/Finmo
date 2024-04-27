@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import { CurrencyAmountMap } from 'src/types';
 
 export const AccountsSchema = new mongoose.Schema({
-  userId: { type: Number },
+  userId: { type: String },
   username: { type: String, required: true },
   email: { type: String, required: true },
   password: { type: String, required: true },
@@ -25,7 +25,7 @@ export const AccountsSchema = new mongoose.Schema({
 });
 
 export interface Accounts extends mongoose.Document {
-  userId?: number;
+  userId?: string;
   username: string;
   email: string;
   password: string;

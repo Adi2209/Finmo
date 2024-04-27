@@ -44,7 +44,7 @@ export class FxRateService {
           response.data['Realtime Currency Exchange Rate']['5. Exchange Rate'],
       };
       this.mycache.set(cacheKey, fxRateResponse, TTL_EXCHANGE_RATE_SECS);
-      console.log("Inside Cache", this.mycache.data);
+      console.log('Inside Cache', this.mycache.data);
       return fxRateResponse;
     } catch (error) {
       console.error('Could not get fx rate due to error: ', error);
@@ -58,26 +58,28 @@ export class FxRateService {
     amount: number,
     quoteId: string,
   ): Promise<FxConversionResponseType> {
-    console.log('quoteid',quoteId)
+    console.log('quoteid', quoteId);
     let conversionRate = this.getFxRateFromQuoteId(quoteId);
     if (conversionRate === null) {
       throw new Error('No fx rate found for the given quoteId');
       // conversionRate = (await this.getFxRates(fromCurrency,toCurrency)).fxRate;
     }
-    console.log('BUNGIENUENEOCE--------------------------');
     const convertedAmount = amount * parseFloat(conversionRate);
-    return { convertedAmount: convertedAmount, currency: toCurrency };
+    return {
+      convertedAmount: convertedAmount,
+      currency: toCurrency,
+      fxRate: conversionRate,
+    };
   }
 
-  private getFxRateFromQuoteId(quoteId:string): string | null {
+  private getFxRateFromQuoteId(quoteId: string): string | null {
     const cacheKey = new CrypterService().decrypt(quoteId);
     const cachedFxRate = this.mycache.get(cacheKey) as FxRateResponseType;
-      if (!cachedFxRate) {
-        return null;
-      }
+    if (!cachedFxRate) {
+      return null;
+    }
 
     return cachedFxRate.fxRate;
-
   }
 
   private generateCacheKey(fromCurrency: string, toCurrency: string): string {

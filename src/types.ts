@@ -7,7 +7,7 @@ export type ConversionRateRequestType = {
 
 export type FxRateResponseType = { quoteId: string; expiry_at: string, fxRate: string };
 
-export type FxConversionResponseType = { convertedAmount: number; currency: string};
+export type FxConversionResponseType = { convertedAmount: number; currency: string, fxRate:string};
 
 export type CurrencyAmountMap = { [currency: string]: number };
 
