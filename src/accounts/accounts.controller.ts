@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -6,22 +7,28 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { AccountsService } from './accounts.service';
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { CreateAccountsDto } from '../dto/createAccounts.dto';
 import { TopUpAccountsDto } from 'src/dto/topupAccounts.dto';
 import { BalanceAccountsDto } from 'src/dto/balanceAccounts.dto';
 import { SkipThrottle } from '@nestjs/throttler';
+import { AuthenticationService } from 'src/authentication/authentication.service';
+import { UserLoginDto } from 'src/dto/userLogin.dto';
+import { AuthenticationGuard } from 'src/authentication/authentication.guard';
 
 @SkipThrottle()
 @Controller('accounts')
@@ -29,7 +36,10 @@ import { SkipThrottle } from '@nestjs/throttler';
 export class AccountsController {
   private readonly logger: Logger = new Logger('AccountsController');
 
-  constructor(private readonly accountsService: AccountsService) {}
+  constructor(
+    private readonly accountsService: AccountsService,
+    private readonly authService: AuthenticationService,
+  ) {}
 
   @Post()
   @UsePipes(new ValidationPipe())
@@ -59,6 +69,9 @@ export class AccountsController {
 
   @Put('topup')
   @UsePipes(new ValidationPipe())
+  @UseGuards(AuthenticationGuard)
+  @ApiBearerAuth()
+  @ApiUnauthorizedResponse({ description: 'Unauthorized User' })
   @ApiOkResponse({
     status: 200,
     description: 'Balance Updated Successfully',
@@ -86,6 +99,9 @@ export class AccountsController {
 
   @Get('balance/:id')
   @UsePipes(new ValidationPipe())
+  @UseGuards(AuthenticationGuard)
+  @ApiBearerAuth()
+  @ApiUnauthorizedResponse({ description: 'Unauthorized User' })
   @ApiOkResponse({
     status: 200,
     description: 'Balance fetched Successfully',
@@ -103,6 +119,17 @@ export class AccountsController {
     } catch (error) {
       this.logger.warn(`Failed to fetch the balance due to error: ${error}`);
       throw error;
+    }
+  }
+
+  @Post('login')
+  async login(@Body() loginDto: UserLoginDto) {
+    try {
+      const token = await this.authService.login(loginDto);
+      console.log('token:',token)
+      return { token };
+    } catch (error) {
+      throw new BadRequestException('Invalid credentials');
     }
   }
 }

@@ -10,17 +10,22 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AccountsService } from './accounts/accounts.service';
 import { AccountsModule } from './accounts/accounts.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { RATE_LIMITS, TTL_RATE_LIMITING_MS } from './config';
 import { APP_GUARD } from '@nestjs/core';
 import { IpTrackingMiddleware } from './ip/ip-tracking.middleware';
 import { LoggerMiddleware } from './logger/logger.middleware';
+import { PassportModule } from '@nestjs/passport';
+import { JwtModule } from '@nestjs/jwt';
+import { AuthenticationService } from './authentication/authentication.service';
+import { RATE_LIMITS, TTL_RATE_LIMITING_MS } from './config';
+import dotenv from 'dotenv'
 
+dotenv.config();
 @Module({
   imports: [
     FxRateModule,
     AccountsModule,
     MongooseModule.forRoot(
-      `mongodb+srv://adi:Testing1234@fx-accounts.7pn4nmj.mongodb.net/FX-Accounts?retryWrites=true&w=majority&appName=FX-Accounts`,
+      process.env.MONGODB_URI,
     ),
     ThrottlerModule.forRoot([
       {
@@ -28,14 +33,24 @@ import { LoggerMiddleware } from './logger/logger.middleware';
         limit: RATE_LIMITS,
       },
     ]),
+    PassportModule,
+    JwtModule.register({
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: '1h' },
+    }),
   ],
-  controllers: [AppController, FxRatesController, AccountsController],
+  controllers: [
+    AppController,
+    FxRatesController,
+    AccountsController,
+  ],
   providers: [
     AppService,
     FxRateService,
     CrypterService,
     AccountsService,
     { provide: APP_GUARD, useClass: ThrottlerGuard },
+    AuthenticationService,
   ],
 })
 export class AppModule implements NestModule {

@@ -8,7 +8,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CurrencyAmountMap, AccountResponseType } from 'src/types';
 import { Accounts } from './accounts.model';
-import * as bcrypt from 'bcryptjs';
+import bcrypt from 'bcryptjs';
 
 @Injectable()
 export class AccountsService {
@@ -31,7 +31,7 @@ export class AccountsService {
         'Sorry a user with this email already exists',
       );
     }
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hashSync(password, 10);
     const newAccount = await this.accountsModel.create({
       username,
       email,
