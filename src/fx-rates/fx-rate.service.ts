@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import {
   BASE_URL,
   CACHE_KEY,
@@ -16,41 +16,39 @@ import { CrypterService } from 'src/crypter.service';
 
 @Injectable()
 export class FxRateService {
-  private readonly mycache: NodeCache = new NodeCache();
+  private readonly myCache: NodeCache = new NodeCache();
 
   private readonly logger: Logger = new Logger('FxRateService');
 
   public async getFxRates(
     fromCurrency: string,
     toCurrency: string,
-  ): Promise<FxRateResponseType | null> {
-    try {
-      const cacheKey = this.generateCacheKey(fromCurrency, toCurrency);
-      const cachedFxRate = this.mycache.get(cacheKey) as FxRateResponseType;
-      if (cachedFxRate) {
-        return cachedFxRate;
-      }
-      const query: FxRateQuery = {
-        function: 'CURRENCY_EXCHANGE_RATE',
-        fromCurrency: fromCurrency,
-        toCurrency: toCurrency,
-      };
-      const url = this.getFxRateUrl(query);
-      const response: AxiosResponse = await axios.get(url);
-      const currentTime = new Date().getTime();
-      const fxRateResponse = {
-        quoteId: this.getQuoteId(cacheKey),
-        expiry_at: this.getExpiryAt(currentTime),
-        fxRate:
-          response.data['Realtime Currency Exchange Rate']['5. Exchange Rate'],
-      };
-      this.mycache.set(cacheKey, fxRateResponse, TTL_EXCHANGE_RATE_SECS);
-      console.log('Inside Cache', this.mycache.data);
-      return fxRateResponse;
-    } catch (error) {
-      this.logger.error('Could not get fx rate due to error: ', error);
-      return null;
+  ): Promise<FxRateResponseType> {
+    const cacheKey = this.generateCacheKey(fromCurrency, toCurrency);
+    const cachedFxRate: FxRateResponseType = this.myCache.get(cacheKey);
+    if (cachedFxRate) {
+      this.logger.debug('FX Rate found in cache, returning rate from cache');
+      return cachedFxRate;
     }
+    const query: FxRateQuery = {
+      function: 'CURRENCY_EXCHANGE_RATE',
+      fromCurrency: fromCurrency,
+      toCurrency: toCurrency,
+    };
+    const url = this.getFxRateUrl(query);
+    const response: AxiosResponse = await axios.get(url);
+    const currentTime = new Date().getTime();
+    const fxRateResponse = {
+      quoteId: this.getQuoteId(cacheKey),
+      expiry_at: this.getExpiryAt(currentTime),
+      fxRate:
+        response.data['Realtime Currency Exchange Rate']['5. Exchange Rate'],
+    };
+    if(!fxRateResponse.fxRate){
+      throw new BadRequestException('Failed to fetch FX Rates, due to 25 free requests per day reached')
+    }
+    this.myCache.set(cacheKey, fxRateResponse, TTL_EXCHANGE_RATE_SECS);
+    return fxRateResponse;
   }
 
   public async convertFXRate(
@@ -59,12 +57,10 @@ export class FxRateService {
     amount: number,
     quoteId: string,
   ): Promise<FxConversionResponseType> {
-    console.log('quoteid', quoteId);
     let conversionRate = this.getFxRateFromQuoteId(quoteId);
     if (conversionRate === null) {
       this.logger.warn('No fx rate found for the given quoteId');
-      throw new NotFoundException('No fx rate found for the given quoteId');
-      // conversionRate = (await this.getFxRates(fromCurrency,toCurrency)).fxRate;
+      conversionRate = (await this.getFxRates(fromCurrency,toCurrency)).fxRate;
     }
     const convertedAmount = amount * parseFloat(conversionRate);
     return {
@@ -82,7 +78,7 @@ export class FxRateService {
 
   private getFxRateFromQuoteId(quoteId: string): string | null {
     const cacheKey = new CrypterService().decrypt(quoteId);
-    const cachedFxRate = this.mycache.get(cacheKey) as FxRateResponseType;
+    const cachedFxRate: FxRateResponseType = this.myCache.get(cacheKey);
     if (!cachedFxRate) {
       return null;
     }

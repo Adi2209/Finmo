@@ -1,34 +1,34 @@
 import { ApiProperty, ApiResponseProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import {
-  IsString,
-  IsEmail,
-  IsNotEmpty,
-  IsStrongPassword,
-  IsObject,
-} from 'class-validator';
+import { IsString, IsNotEmpty, IsObject } from 'class-validator';
 import { CurrencyAmountMap } from 'src/types';
 
-export class TopUpAccountsDto  {
-
-  @ApiProperty({description: 'id of the user',example: '662d12e2de0c81ef3a9878c1'})
+export class TopUpAccountsDto {
+  @ApiProperty({
+    description: 'id of the user',
+    example: '662d12e2de0c81ef3a9878c1',
+  })
+  @IsNotEmpty()
   @IsString()
   id: string;
 
-  @ApiResponseProperty()
-  @ApiProperty({description: 'Username of the user',example: 'Harry'})
-  @IsNotEmpty()
-  @IsString()
+  @ApiResponseProperty({ type: String, example: 'Harry' })
   username: string;
 
-  @ApiResponseProperty()
-  @ApiProperty({description: 'Email of the user',example: 'harry@example.com'})
-  @IsNotEmpty()
-  @IsEmail()
+  @ApiResponseProperty({ type: String, example: 'harry@example.com' })
   email: string;
 
-  @ApiProperty({description: 'Balance Amount of the user for all currencies', example: '{"USD":100}'})
+  @ApiProperty({
+    description: 'Enter the Amount to top up',
+    example: '{"USD":100}',
+  })
   @IsObject()
-  @Transform(({ value }) => JSON.parse(value.replace(/;/g, '')))
+  @IsNotEmpty()
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      return JSON.parse(value);
+    }
+    return value;
+  })
   balance: CurrencyAmountMap;
 }

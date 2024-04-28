@@ -3,6 +3,7 @@ import {
   NestMiddleware,
   ForbiddenException,
   Logger,
+  HttpStatus,
 } from '@nestjs/common';
 import { IpTrackingMiddleware } from './ip-tracking.middleware';
 import { RATE_LIMITS, TTL_RATE_LIMITING_MS } from 'src/config';
@@ -13,7 +14,7 @@ export class IpBanMiddleware implements NestMiddleware {
 
   private readonly banDuration = TTL_RATE_LIMITING_MS;
 
-  private readonly logger: Logger= new Logger('IpBanMiddleware');
+  private readonly logger: Logger = new Logger('IpBanMiddleware');
 
   constructor(private readonly ipTrackingMiddleware: IpTrackingMiddleware) {}
 

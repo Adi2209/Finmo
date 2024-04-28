@@ -6,34 +6,53 @@ import {
   IsNotEmpty,
   IsStrongPassword,
   IsObject,
+  Validate,
 } from 'class-validator';
 import { CurrencyAmountMap } from 'src/types';
 
 export class CreateAccountsDto {
 
-  @ApiResponseProperty()
-  @ApiProperty({description: 'id of the user',example: '662d12e2de0c81ef3a9878c1'})
-  @IsString()
+  @ApiResponseProperty({ type: String })
   id: string;
 
-  @ApiProperty({description: 'Username of the user',example: 'Harry'})
-  @IsNotEmpty()
+  @ApiProperty({ description: 'Username of the user', example: 'Harry' })
+  @IsNotEmpty() 
   @IsString()
   username: string;
 
-  @ApiProperty({description: 'Email of the user',example: 'harry@example.com'})
+  @ApiProperty({
+    description: 'Email of the user',
+    example: 'harry@example.com',
+  })
   @IsNotEmpty()
   @IsEmail()
   email: string;
 
-  @ApiProperty({description: 'Password of the user', example: 'Harry@1234'})
+  @ApiProperty({ description: 'Password of the user', example: 'Harry@1234' })
   @IsNotEmpty()
   @IsString()
-  @IsStrongPassword()
+  @IsStrongPassword({
+    minLength: 5,
+    minNumbers: 1,
+    minSymbols: 1,
+    minUppercase: 1,
+  })
   password: string;
 
-  @ApiProperty({description: 'Balance Amount of the user for all currencies', example: '{"USD":100}'})
+  @ApiProperty({
+    description: 'Balance Amount of the user for all currencies',
+    example: '{"USD":100}',
+  })
   @IsObject()
-  @Transform(({ value }) => JSON.parse(value.replace(/;/g, '')))
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      return JSON.parse(value);
+    }
+    return value;
+  })
   balance: CurrencyAmountMap;
 }
+
+
+
+
