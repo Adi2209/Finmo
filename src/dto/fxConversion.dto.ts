@@ -3,6 +3,7 @@ import {
   IsString,
   IsNotEmpty,
   IsNumber,
+  IsPositive,
 } from 'class-validator';
 
 export class FxConversionDto {
@@ -23,6 +24,7 @@ export class FxConversionDto {
   @ApiProperty({description: 'Enter Amount to Convert',example: '100'})
   @IsNotEmpty()
   @IsNumber()
+  @IsPositive()
   amount: number;
 
   @ApiResponseProperty()

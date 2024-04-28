@@ -49,10 +49,8 @@ export class AuthenticationService {
     if (user === null) {
       return { message: 'Invalid username or password' };
     }
-    console.log(user);
     const payload = { username: user.username, userId: user._id.toString() };
     const accessToken = this.jwtService.sign(payload);
-    console.log('AccessToken:',accessToken);
     return accessToken;
   }
 }

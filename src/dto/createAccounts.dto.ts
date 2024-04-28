@@ -6,6 +6,9 @@ import {
   IsNotEmpty,
   IsStrongPassword,
   IsObject,
+  ValidationArguments,
+  ValidationOptions,
+  registerDecorator,
 } from 'class-validator';
 import { CurrencyAmountMap } from 'src/types';
 
@@ -49,7 +52,28 @@ export class CreateAccountsDto {
     }
     return value;
   })
+  @IsPositiveBalance({ message: 'Balance amount should be positive' })
   balance: CurrencyAmountMap;
+}
+
+function IsPositiveBalance(validationOptions?: ValidationOptions) {
+  return function(object: Object, propertyName: string) {
+    registerDecorator({
+      name: 'isPositiveBalance',
+      target: object.constructor,
+      propertyName: propertyName,
+      options: validationOptions,
+      validator: {
+        validate(value: any, args: ValidationArguments) {
+          if (typeof value === 'object') {
+            const isPositive = Object.values(value).every((val: number) => val > 0);
+            return isPositive;
+          }
+          return false;
+        },
+      },
+    });
+  };
 }
 
 

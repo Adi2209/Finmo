@@ -126,7 +126,6 @@ export class AccountsController {
   async login(@Body() loginDto: UserLoginDto) {
     try {
       const token = await this.authService.login(loginDto);
-      console.log('token:',token)
       return { token };
     } catch (error) {
       throw new BadRequestException('Invalid credentials');

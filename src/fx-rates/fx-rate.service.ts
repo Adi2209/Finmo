@@ -39,15 +39,16 @@ export class FxRateService {
     const url = this.getFxRateUrl(query);
     const response: AxiosResponse = await axios.get(url);
     const currentTime = new Date().getTime();
+    if(response.data['Realtime Currency Exchange Rate'] == undefined){
+      throw new BadRequestException('Failed to fetch FX Rates, due to 25 free requests per day reached')
+    }
     const fxRateResponse = {
       quoteId: this.getQuoteId(cacheKey),
       expiry_at: this.getExpiryAt(currentTime),
       fxRate:
         response.data['Realtime Currency Exchange Rate']['5. Exchange Rate'],
     };
-    if(!fxRateResponse.fxRate){
-      throw new BadRequestException('Failed to fetch FX Rates, due to 25 free requests per day reached')
-    }
+
     this.myCache.set(cacheKey, fxRateResponse, TTL_EXCHANGE_RATE_SECS);
     return fxRateResponse;
   }
