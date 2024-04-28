@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import Cryptr from 'cryptr';
 
 @Injectable()
@@ -17,10 +17,22 @@ export class CrypterService {
   }
 
   encrypt(text: string): string {
-    return this.cryptr.encrypt(text);
+    try {
+      return this.cryptr.encrypt(text);
+    } catch (error) {
+      throw new BadRequestException(
+        'Failed to encrypt the text. Please ensure that the input is valid and try again.'
+      );
+    }
   }
 
   decrypt(encryptedText: string): string {
-    return this.cryptr.decrypt(encryptedText);
+    try {
+      return this.cryptr.decrypt(encryptedText);
+    } catch (error) {
+      throw new BadRequestException(
+        'Invalid quoteId. It may have been tampered with or was not generated properly. Please ensure that the quoteId is correct and was generated using the required encryption strength.'
+      );
+    }
   }
 }

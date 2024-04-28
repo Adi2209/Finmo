@@ -13,6 +13,7 @@ import {
   FxRateResponseType,
 } from 'src/types';
 import { CrypterService } from 'src/crypter.service';
+import { formatCurrency } from 'src/utils';
 
 @Injectable()
 export class FxRateService {
@@ -63,8 +64,9 @@ export class FxRateService {
       conversionRate = (await this.getFxRates(fromCurrency,toCurrency)).fxRate;
     }
     const convertedAmount = amount * parseFloat(conversionRate);
+    const formattedAmount = formatCurrency(convertedAmount, toCurrency);
     return {
-      convertedAmount: convertedAmount,
+      convertedAmount: formattedAmount,
       currency: toCurrency,
       fxRate: conversionRate,
     };

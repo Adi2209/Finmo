@@ -18,7 +18,7 @@ export type FxRateResponseType = {
 };
 
 export type FxConversionResponseType = {
-  convertedAmount: number;
+  convertedAmount: string;
   currency: string;
   fxRate: string;
 };

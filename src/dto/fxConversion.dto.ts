@@ -7,7 +7,7 @@ import {
 
 export class FxConversionDto {
 
-  @ApiProperty({description: 'quoteId to retrieve forex exchange rate from cache',example: '662d12e2de0c81ef3a9878c1'})
+  @ApiProperty({description: 'quoteId to retrieve forex exchange rate from cache',example: 'Oh/DOSsUGN+oZn6Jdj/wql353x7QhrFlyPqYo4WgVbucwmwCwEDtz6kZqBCJ6Reo'})
   @IsNotEmpty()
   @IsString()
   quoteId: string;
