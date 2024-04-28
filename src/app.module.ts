@@ -18,6 +18,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthenticationService } from './authentication/authentication.service';
 import { RATE_LIMITS, TTL_RATE_LIMITING_MS } from './config';
 import dotenv from 'dotenv'
+import { CronJob } from './cron/CronJob';
 
 dotenv.config();
 @Module({
@@ -51,6 +52,7 @@ dotenv.config();
     AccountsService,
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     AuthenticationService,
+    CronJob
   ],
 })
 export class AppModule implements NestModule {

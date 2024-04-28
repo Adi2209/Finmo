@@ -5,6 +5,8 @@ export const API_URLS = {
 
 export const BASE_URL = 'https://www.alphavantage.co/';
 
+export const DEPLOYMENT_URL = 'https://forex-h14m.onrender.com/';
+
 export const FX_RATE = 'fx-rate';
 
 export const CACHE_KEY = 'fxRates';
