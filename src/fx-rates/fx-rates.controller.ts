@@ -5,11 +5,9 @@ import {
   Logger,
   Post,
   Query,
-  Res,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { Response } from 'express';
 import { FxRateService } from './fx-rate.service';
 import {
   ApiBadRequestResponse,

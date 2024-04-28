@@ -6,7 +6,6 @@ import {
   IsNotEmpty,
   IsStrongPassword,
   IsObject,
-  Validate,
 } from 'class-validator';
 import { CurrencyAmountMap } from 'src/types';
 
