@@ -15,12 +15,23 @@ import {
 import { CrypterService } from 'src/crypter.service';
 import { formatCurrency } from 'src/utils';
 
+/**
+ * Service for fetching and managing foreign exchange rates.
+ * Provides methods for retrieving FX rates and converting currencies.
+ */
 @Injectable()
 export class FxRateService {
   private readonly myCache: NodeCache = new NodeCache();
 
   private readonly logger: Logger = new Logger('FxRateService');
 
+  /**
+   * Retrieves the foreign exchange rate between two currencies.
+   * @param fromCurrency The currency code to convert from.
+   * @param toCurrency The currency code to convert to.
+   * @returns A promise that resolves to the foreign exchange rate response.
+   * @throws BadRequestException Throws a BadRequestException if the API request fails or daily free request limit is reached.
+   */
   public async getFxRates(
     fromCurrency: string,
     toCurrency: string,
@@ -53,6 +64,14 @@ export class FxRateService {
     return fxRateResponse;
   }
 
+  /**
+   * Converts an amount from one currency to another based on a provided quote ID or by fetching the FX rate.
+   * @param fromCurrency The currency code to convert from.
+   * @param toCurrency The currency code to convert to.
+   * @param amount The amount to convert.
+   * @param quoteId The quote ID for fetching the conversion rate from cache.
+   * @returns A promise that resolves to the converted amount and rate response.
+   */
   public async convertFXRate(
     fromCurrency: string,
     toCurrency: string,
@@ -73,12 +92,22 @@ export class FxRateService {
     };
   }
 
+  /**
+   * Constructs the URL for fetching the FX rate.
+   * @param query The query parameters for the API request.
+   * @returns The URL for fetching the FX rate.
+   */
   private getFxRateUrl(query: FxRateQuery): string {
     const queryString = `function=${query.function}&from_currency=${query.fromCurrency}&to_currency=${query.toCurrency}&apikey=${process.env.API_KEY}`;
     const fullUrl = `${BASE_URL}query?${queryString}`;
     return fullUrl;
   }
 
+  /**
+   * Retrieves the FX rate from cache using the quote ID.
+   * @param quoteId The encrypted quote ID used as the cache key.
+   * @returns The FX rate corresponding to the quote ID, or null if not found.
+   */
   private getFxRateFromQuoteId(quoteId: string): string | null {
     const cacheKey = new CrypterService().decrypt(quoteId);
     const cachedFxRate: FxRateResponseType = this.myCache.get(cacheKey);
@@ -89,15 +118,31 @@ export class FxRateService {
     return cachedFxRate.fxRate;
   }
 
+  /**
+   * Generates a cache key based on the currencies being converted.
+   * @param fromCurrency The currency code to convert from.
+   * @param toCurrency The currency code to convert to.
+   * @returns The generated cache key.
+   */
   private generateCacheKey(fromCurrency: string, toCurrency: string): string {
     return `${CACHE_KEY}_${fromCurrency}_${toCurrency}`;
   }
 
+  /**
+   * Encrypts the cache key to generate a quote ID.
+   * @param cacheKey The cache key to encrypt.
+   * @returns The encrypted quote ID.
+   */
   private getQuoteId(cacheKey: string): string {
     const quoteId = new CrypterService().encrypt(cacheKey);
     return quoteId;
   }
 
+   /**
+   * Calculates the expiry timestamp for the cached FX rate.
+   * @param currentTime The current timestamp.
+   * @returns The formatted expiry timestamp.
+   */
   private getExpiryAt(currentTime: number): string {
     const expiryTimestamp = currentTime + TTL_EXCHANGE_RATE_MILLI_SECS;
     const expiryDate = new Date(expiryTimestamp);

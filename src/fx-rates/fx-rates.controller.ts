@@ -19,6 +19,9 @@ import {
 import { FxRatesDto } from 'src/dto/fxRates.dto';
 import { FxConversionDto } from 'src/dto/fxConversion.dto';
 
+/**
+ * Controller handling routes related to FX rates.
+ */
 @ApiTags('FX-Rates')
 @Controller()
 export class FxRatesController {
@@ -26,6 +29,12 @@ export class FxRatesController {
 
   constructor(private readonly fxRateService: FxRateService) {}
 
+  /**
+   * Endpoint to fetch FX rates for a given currency pair.
+   * @param fromCurrency The currency code to convert from.
+   * @param toCurrency The currency code to convert to.
+   * @returns An object containing FX rates for the specified currency pair.
+   */
   @Get('fx-rates')
   @UsePipes(new ValidationPipe())
   @ApiResponse({
@@ -52,6 +61,11 @@ export class FxRatesController {
     }
   }
 
+  /**
+   * Endpoint to convert an amount from one currency to another.
+   * @param request The request body containing the conversion details.
+   * @returns An object containing the converted amount and related information.
+   */
   @Post('fx-conversion')
   @UsePipes(new ValidationPipe())
   @ApiOkResponse({

@@ -30,6 +30,9 @@ import { AuthenticationService } from 'src/authentication/authentication.service
 import { UserLoginDto } from 'src/dto/userLogin.dto';
 import { AuthenticationGuard } from 'src/authentication/authentication.guard';
 
+/**
+ * Controller for handling account-related endpoints.
+ */
 @SkipThrottle()
 @Controller('accounts')
 @ApiTags('Accounts')
@@ -41,6 +44,11 @@ export class AccountsController {
     private readonly authService: AuthenticationService,
   ) {}
 
+  /**
+   * Endpoint for creating a new account.
+   * @param request The request body containing account details.
+   * @returns The ID of the newly created account.
+   */
   @Post()
   @UsePipes(new ValidationPipe())
   @ApiCreatedResponse({
@@ -67,6 +75,11 @@ export class AccountsController {
     }
   }
 
+  /**
+   * Endpoint for topping up the balance of an account.
+   * @param request The request body containing the account ID and balance to top up.
+   * @returns The updated account details.
+   */
   @Put('topup')
   @UsePipes(new ValidationPipe())
   @UseGuards(AuthenticationGuard)
@@ -97,6 +110,11 @@ export class AccountsController {
     }
   }
 
+  /**
+   * Endpoint for fetching the balance of an account.
+   * @param id The ID of the account.
+   * @returns The account balance.
+   */
   @Get('balance/:id')
   @UsePipes(new ValidationPipe())
   @UseGuards(AuthenticationGuard)
@@ -122,6 +140,12 @@ export class AccountsController {
     }
   }
 
+  /**
+   * Endpoint for user login.
+   * @param loginDto The request body containing user login credentials.
+   * @returns The JWT token upon successful login.
+   */
+  @UsePipes(new ValidationPipe())
   @Post('login')
   async login(@Body() loginDto: UserLoginDto) {
     try {

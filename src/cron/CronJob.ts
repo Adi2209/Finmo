@@ -3,6 +3,9 @@ import cron from 'node-cron';
 import axios from 'axios';
 import { DEPLOYMENT_URL } from 'src/config';
 
+/**
+ * Injectable service for managing a cron job to ping the deployment URL at regular intervals.
+ */
 @Injectable()
 export class CronJob implements OnModuleInit {
   private readonly logger = new Logger('CronJob');

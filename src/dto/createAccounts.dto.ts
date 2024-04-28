@@ -12,16 +12,25 @@ import {
 } from 'class-validator';
 import { CurrencyAmountMap } from 'src/types';
 
+/**
+ * Data transfer object (DTO) for creating user accounts.
+ */
 export class CreateAccountsDto {
 
   @ApiResponseProperty({ type: String })
   id: string;
 
+  /**
+   * The username of the user.
+   */
   @ApiProperty({ description: 'Username of the user', example: 'Harry' })
   @IsNotEmpty() 
   @IsString()
   username: string;
 
+  /**
+   * The email address of the user.
+   */
   @ApiProperty({
     description: 'Email of the user',
     example: 'harry@example.com',
@@ -30,6 +39,9 @@ export class CreateAccountsDto {
   @IsEmail()
   email: string;
 
+  /**
+   * The password of the user.
+   */
   @ApiProperty({ description: 'Password of the user', example: 'Harry@1234' })
   @IsNotEmpty()
   @IsString()
@@ -41,6 +53,9 @@ export class CreateAccountsDto {
   })
   password: string;
 
+  /**
+   * The balance amount of the user for all currencies.
+   */
   @ApiProperty({
     description: 'Balance Amount of the user for all currencies',
     example: '{"USD":100}',
@@ -56,6 +71,9 @@ export class CreateAccountsDto {
   balance: CurrencyAmountMap;
 }
 
+/**
+ * Custom validation decorator to ensure that the balance amount is positive.
+ */
 function IsPositiveBalance(validationOptions?: ValidationOptions) {
   return function(object: Object, propertyName: string) {
     registerDecorator({
@@ -75,7 +93,3 @@ function IsPositiveBalance(validationOptions?: ValidationOptions) {
     });
   };
 }
-
-
-
-
