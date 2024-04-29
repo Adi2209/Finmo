@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import {
   BASE_URL,
   CACHE_KEY,
-  TTL_EXCHANGE_RATE_MILLI_SECS,
+  TTL_EXCHANGE_RATE_MS,
   TTL_EXCHANGE_RATE_SECS,
 } from '../config';
 import axios, { AxiosResponse } from 'axios';
@@ -144,7 +144,7 @@ export class FxRateService {
    * @returns The formatted expiry timestamp.
    */
   private getExpiryAt(currentTime: number): string {
-    const expiryTimestamp = currentTime + TTL_EXCHANGE_RATE_MILLI_SECS;
+    const expiryTimestamp = currentTime + TTL_EXCHANGE_RATE_MS;
     const expiryDate = new Date(expiryTimestamp);
     const intlFormat = new Intl.DateTimeFormat('en-uk', {
       dateStyle: 'short',

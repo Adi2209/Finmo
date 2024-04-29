@@ -1,6 +1,7 @@
 import { ForbiddenException, Injectable, Logger, NestMiddleware } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { IP_BAN_DURATION_MS, IP_BAN_LIMIT } from 'src/config';
 import { BannedIp } from 'src/schemas/banned-ip.schema';
 import { IpRequestCount } from 'src/schemas/ip-request.schema';
 
@@ -11,9 +12,9 @@ import { IpRequestCount } from 'src/schemas/ip-request.schema';
 export class IpTrackingMiddleware implements NestMiddleware {
   private readonly logger: Logger = new Logger('IpTrackingMiddleware');
 
-  private readonly banDuration = 10000;
+  private readonly banDuration = IP_BAN_DURATION_MS;
   
-  private readonly requestThreshold = 3;
+  private readonly requestThreshold = IP_BAN_LIMIT;
 
   constructor(
     @InjectModel(BannedIp.name) private readonly bannedIpModel: Model<BannedIp>,
