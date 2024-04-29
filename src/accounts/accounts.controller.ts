@@ -143,14 +143,24 @@ export class AccountsController {
   /**
    * Endpoint for user login.
    * @param loginDto The request body containing user login credentials.
-   * @returns The JWT token upon successful login.
+   * @returns User Details with JWT token upon successful login.
    */
   @UsePipes(new ValidationPipe())
+  @ApiOkResponse({
+    status: 200,
+    description: 'Logged in Successfully',
+    type: UserLoginDto,
+  })
+  @ApiBadRequestResponse({ description: 'Failed to log in to the account' })
+  @ApiNotFoundResponse({
+    description:
+      'Failed to fetch the account details, account does not exist',
+  })
   @Post('login')
   async login(@Body() loginDto: UserLoginDto) {
     try {
-      const token = await this.authService.login(loginDto);
-      return { token };
+      const user = await this.authService.login(loginDto);
+      return user;
     } catch (error) {
       throw new BadRequestException('Invalid credentials');
     }

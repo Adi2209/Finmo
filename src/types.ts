@@ -31,3 +31,10 @@ export type AccountResponseType = {
   email: string;
   balance: CurrencyAmountMap;
 };
+
+export type LoginAccountResponseType = {
+  id: string;
+  username: string;
+  email: string;
+  accessToken: string;
+};

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   Logger,
   NotFoundException,
@@ -10,6 +11,7 @@ import { UserLoginDto } from 'src/dto/userLogin.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Accounts } from 'src/schemas/accounts.model';
+import { LoginAccountResponseType } from 'src/types';
 
 /**
  * Service for authentication-related operations, such as user validation and token management.
@@ -65,13 +67,17 @@ export class AuthenticationService {
    * @param userData The user login data.
    * @returns The access token if login is successful, or a message indicating invalid credentials.
    */
-  async login(userData: UserLoginDto) {
+  async login(userData: UserLoginDto): Promise<LoginAccountResponseType> {
     const user = await this.validateUser(userData.username, userData.password);
-    if (user === null) {
-      return { message: 'Invalid username or password' };
+    if (!user) {
+      throw new BadRequestException(
+        `No user with username: ${userData.username} exists`,
+      );
     }
-    const payload = { username: user.username, userId: user._id.toString() };
+    const { _id, username, email } = user;
+    const payload = { username, userId: _id.toString(), email };
     const accessToken = this.jwtService.sign(payload);
-    return accessToken;
+
+    return { id: _id, username, email, accessToken };
   }
 }

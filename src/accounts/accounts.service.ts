@@ -39,14 +39,7 @@ export class AccountsService {
     password: string,
     balance: CurrencyAmountMap,
   ): Promise<string> {
-    // Check if a user with the same email already exists
-    const user = await this.accountsModel.findOne({ email: email });
-    if (user) {
-      this.logger.log('A user with this email already exists, throwing error');
-      throw new BadRequestException(
-        'Sorry a user with this email already exists',
-      );
-    }
+    await this.validateCreateBody(username, email);
     const hashedPassword = await bcrypt.hashSync(password, 10);
     const newAccount = await this.accountsModel.create({
       username,
@@ -105,5 +98,25 @@ export class AccountsService {
       email: account.email,
       balance: account.balance,
     };
+  }
+
+  private async validateCreateBody(
+    username: string,
+    email: string,
+  ): Promise<void> {
+    const user = await this.accountsModel.findOne({
+      $or: [{ email }, { username }],
+    });
+    if (user) {
+      if (user.email === email) {
+        throw new BadRequestException(
+          'Sorry, a user with this email already exists',
+        );
+      } else if (user.username === username) {
+        throw new BadRequestException(
+          'Sorry, a user with this username already exists',
+        );
+      }
+    }
   }
 }
