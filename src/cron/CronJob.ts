@@ -29,6 +29,6 @@ export class CronJob implements OnModuleInit {
       timezone: 'Asia/Kolkata',
     });
 
-    this.logger.error('Cron job scheduled to ping the URL every 4 minutes in IST timezone.');
+    this.logger.log('Cron job scheduled to ping the URL every 4 minutes in IST timezone.');
   }
 }

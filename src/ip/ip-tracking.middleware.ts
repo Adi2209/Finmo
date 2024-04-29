@@ -1,65 +1,117 @@
-import {
-  Injectable,
-  NestMiddleware,
-  ForbiddenException,
-  Logger,
-} from '@nestjs/common';
-import { RATE_LIMITS, TTL_RATE_LIMITING_MS } from 'src/config';
+import { ForbiddenException, Injectable, Logger, NestMiddleware } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { BannedIp } from 'src/schemas/banned-ip.schema';
+import { IpRequestCount } from 'src/schemas/ip-request.schema';
 
 /**
- * Middleware for tracking incoming requests based on IP addresses.
- * This middleware keeps track of the number of requests received from each IP address.
- * It also bans IPs temporarily if they exceed a certain threshold.
+ * Middleware for tracking and managing IP addresses.
  */
 @Injectable()
 export class IpTrackingMiddleware implements NestMiddleware {
-  private readonly ipRequestCount = new Map<string, number>();
-
-  private readonly bannedIps = new Map<string, number>();
-
   private readonly logger: Logger = new Logger('IpTrackingMiddleware');
 
-  private readonly banDuration = TTL_RATE_LIMITING_MS;
+  private readonly banDuration = 10000;
   
-  private readonly requestThreshold = RATE_LIMITS;
+  private readonly requestThreshold = 3;
+
+  constructor(
+    @InjectModel(BannedIp.name) private readonly bannedIpModel: Model<BannedIp>,
+    @InjectModel(IpRequestCount.name)
+    private readonly ipRequestCountModel: Model<IpRequestCount>,
+  ) {}
 
   /**
-   * Handles incoming requests and tracks the number of requests from each IP address.
-   * If an IP exceeds the request threshold, it is temporarily banned.
-   * @param req The incoming request object.
-   * @param res The outgoing response object.
+   * Middleware function for tracking IP addresses and applying IP banning logic.
+   * @param req The request object.
+   * @param res The response object.
    * @param next The next function to call in the middleware chain.
-   * @throws ForbiddenException Throws a ForbiddenException if the IP address is banned or if the request threshold is exceeded.
    */
-  use(req: any, res: any, next: () => void) {
+  async use(req: any, res: any, next: () => void) {
     const ip = req.ip || req.connection.remoteAddress;
 
-    // Check if IP is banned
-    if (this.bannedIps.has(ip)) {
-      const banExpirationTime = this.bannedIps.get(ip);
-      if (banExpirationTime > Date.now()) {
-        this.logger.warn(`Ip: ${ip} has been banned for 1 minute`);
+    try {
+      await this.cleanupExpiredData(ip);
+
+      if (await this.isIpBanned(ip)) {
         throw new ForbiddenException(
           'Your IP address has been banned for 1 minute',
         );
-      } else {
-        this.bannedIps.delete(ip);
       }
+
+      await this.trackIpRequest(ip);
+
+      if (await this.shouldBanIp(ip)) {
+        await this.banIp(ip);
+        throw new ForbiddenException(
+          'Your IP address has been banned for 1 minute',
+        );
+      }
+
+      next();
+    } catch (error) {
+      this.logger.error(`Error processing IP request: ${error.message}`);
+      throw error;
     }
+  }
 
-    // Track request count for IP
-    const count = this.ipRequestCount.get(ip) || 0;
-    this.ipRequestCount.set(ip, count + 1);
+  /**
+   * Clean up expired IP data.
+   * @param ip The IP address to clean up data for.
+   */
+  async cleanupExpiredData(ip: string) {
+    const currentTime = new Date();
+    const timeWindow = new Date(currentTime.getTime() - this.banDuration);
 
-    // Check if request count exceeds threshold
-    if (count + 1 > this.requestThreshold) {
-      this.bannedIps.set(ip, Date.now() + this.banDuration);
-      this.logger.warn(`Ip: ${ip} has been banned for 1 minute`);
-      throw new ForbiddenException(
-        'Your IP address has been banned for 1 minute',
-      );
-    }
+    await this.ipRequestCountModel.deleteMany({
+      timestamp: { $lt: timeWindow },
+    });
+    await this.bannedIpModel.deleteMany({
+      expirationTime: { $lt: currentTime },
+    });
+  }
 
-    next();
+  /**
+   * Check if an IP address is banned.
+   * @param ip The IP address to check.
+   * @returns A boolean indicating whether the IP address is banned.
+   */
+  async isIpBanned(ip: string): Promise<boolean> {
+    const bannedIp = await this.bannedIpModel.findOne({ ip });
+    return bannedIp && bannedIp.expirationTime > new Date();
+  }
+
+  /**
+   * Track a request from an IP address.
+   * @param ip The IP address to track the request for.
+   */
+  async trackIpRequest(ip: string) {
+    await this.ipRequestCountModel.create({ ip, timestamp: new Date() });
+  }
+
+  /**
+   * Determine if an IP address should be banned based on request count.
+   * @param ip The IP address to check.
+   * @returns A boolean indicating whether the IP address should be banned.
+   */
+  async shouldBanIp(ip: string): Promise<boolean> {
+    const timeWindow = new Date(new Date().getTime() - this.banDuration);
+    const ipRequestCount = await this.ipRequestCountModel.countDocuments({
+      ip,
+      timestamp: { $gt: timeWindow },
+    });
+    return ipRequestCount > this.requestThreshold;
+  }
+
+  /**
+   * Ban an IP address.
+   * @param ip The IP address to ban.
+   */
+  async banIp(ip: string) {
+    await this.bannedIpModel.create({
+      ip,
+      expirationTime: new Date(Date.now() + this.banDuration),
+    });
+    this.logger.warn(`IP: ${ip} has been banned for 1 minute`);
   }
 }

@@ -9,7 +9,7 @@ import * as bcrypt from 'bcrypt';
 import { UserLoginDto } from 'src/dto/userLogin.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Accounts } from 'src/accounts/accounts.model';
+import { Accounts } from 'src/schemas/accounts.model';
 
 /**
  * Service for authentication-related operations, such as user validation and token management.

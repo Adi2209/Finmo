@@ -1,4 +1,4 @@
-import { ApiProperty, ApiResponseProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiQuery, ApiResponseProperty } from '@nestjs/swagger';
 import {
   IsString,
   IsNotEmpty,

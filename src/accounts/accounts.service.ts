@@ -7,7 +7,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CurrencyAmountMap, AccountResponseType } from 'src/types';
-import { Accounts } from './accounts.model';
+import { Accounts } from '../schemas/accounts.model';
 import bcrypt from 'bcryptjs';
 
 /**

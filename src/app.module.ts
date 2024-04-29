@@ -19,6 +19,8 @@ import { AuthenticationService } from './authentication/authentication.service';
 import { RATE_LIMITS, TTL_RATE_LIMITING_MS } from './config';
 import dotenv from 'dotenv'
 import { CronJob } from './cron/CronJob';
+import { BannedIp, BannedIpSchema } from './schemas/banned-ip.schema';
+import { IpRequestCount, IpRequestCountSchema } from './schemas/ip-request.schema';
 
 dotenv.config();
 @Module({
@@ -28,7 +30,10 @@ dotenv.config();
     MongooseModule.forRoot(
       process.env.MONGODB_URI,
     ),
-    ThrottlerModule.forRoot([
+    MongooseModule.forFeature([
+      { name: BannedIp.name, schema: BannedIpSchema },
+      { name: IpRequestCount.name, schema: IpRequestCountSchema },
+    ]),    ThrottlerModule.forRoot([
       {
         ttl: TTL_RATE_LIMITING_MS,
         limit: RATE_LIMITS,
@@ -38,7 +43,7 @@ dotenv.config();
     JwtModule.register({
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '1h' },
-    }),
+    })
   ],
   controllers: [
     AppController,
