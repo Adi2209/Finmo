@@ -18,6 +18,7 @@ import {
 } from '@nestjs/swagger';
 import { FxRatesDto } from '../dto/fxRates.dto';
 import { FxConversionDto } from '../dto/fxConversion.dto';
+import { CurrencyValidator } from 'src/validator/CurrencyValidator';
 
 /**
  * Controller handling routes related to FX rates.
@@ -48,6 +49,7 @@ export class FxRatesController {
     @Query('toCurrency') toCurrency: string,
   ) {
     try {
+      CurrencyValidator.validate([fromCurrency, toCurrency]);
       const response = await this.fxRateService.getFxRates(
         fromCurrency,
         toCurrency,
@@ -83,6 +85,8 @@ export class FxRatesController {
   })
   async convertFxRate(@Body() request: FxConversionDto) {
     try {
+      CurrencyValidator.validate([ request.fromCurrency,
+        request.toCurrency,]);
       const response = await this.fxRateService.convertFXRate(
         request.fromCurrency,
         request.toCurrency,
