@@ -18,7 +18,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthenticationService } from './authentication/authentication.service';
 import { RATE_LIMITS, TTL_RATE_LIMITING_MS } from './config';
 import dotenv from 'dotenv'
-import { CronJob } from './cron/CronJob';
+import { CronJob } from './cron/cron-job.service';
 import { BannedIp, BannedIpSchema } from './schemas/banned-ip.schema';
 import { IpRequestCount, IpRequestCountSchema } from './schemas/ip-request.schema';
 

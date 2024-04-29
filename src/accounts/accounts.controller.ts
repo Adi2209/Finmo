@@ -23,12 +23,12 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { CreateAccountsDto } from '../dto/createAccounts.dto';
-import { TopUpAccountsDto } from 'src/dto/topupAccounts.dto';
-import { BalanceAccountsDto } from 'src/dto/balanceAccounts.dto';
+import { TopUpAccountsDto } from '../dto/topupAccounts.dto';
+import { BalanceAccountsDto } from '../dto/balanceAccounts.dto';
 import { SkipThrottle } from '@nestjs/throttler';
-import { AuthenticationService } from 'src/authentication/authentication.service';
-import { UserLoginDto } from 'src/dto/userLogin.dto';
-import { AuthenticationGuard } from 'src/authentication/authentication.guard';
+import { AuthenticationService } from '../authentication/authentication.service';
+import { UserLoginDto } from '../dto/userLogin.dto';
+import { AuthenticationGuard } from '../authentication/authentication.guard';
 
 /**
  * Controller for handling account-related endpoints.

@@ -2,8 +2,19 @@
   "moduleFileExtensions": ["js", "json", "ts"],
   "rootDir": ".",
   "testEnvironment": "node",
-  "testRegex": ".e2e-spec.ts$",
+  "collectCoverage": true,
+  "clearMocks":true,
+  "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.ts$",
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
-  }
+  },
+  "coveragePathIgnorePatterns": [
+    "/node_modules/",
+    "/src/ip/",
+    "/src/logger/",
+    "/src/schemas/",
+    "/src/cron/",
+    "/src/dto/"
+  ],
+  "testTimeout": 1000
 }

@@ -4,16 +4,16 @@ import {
   CACHE_KEY,
   TTL_EXCHANGE_RATE_MILLI_SECS,
   TTL_EXCHANGE_RATE_SECS,
-} from 'src/config';
+} from '../config';
 import axios, { AxiosResponse } from 'axios';
 import NodeCache from 'node-cache';
 import {
   FxConversionResponseType,
   FxRateQuery,
   FxRateResponseType,
-} from 'src/types';
-import { CrypterService } from 'src/crypter.service';
-import { formatCurrency } from 'src/utils';
+} from '../types';
+import { CrypterService } from '../crypter.service';
+import { formatCurrency } from '../utils';
 
 /**
  * Service for fetching and managing foreign exchange rates.

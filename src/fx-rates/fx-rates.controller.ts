@@ -16,8 +16,8 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { FxRatesDto } from 'src/dto/fxRates.dto';
-import { FxConversionDto } from 'src/dto/fxConversion.dto';
+import { FxRatesDto } from '../dto/fxRates.dto';
+import { FxConversionDto } from '../dto/fxConversion.dto';
 
 /**
  * Controller handling routes related to FX rates.
