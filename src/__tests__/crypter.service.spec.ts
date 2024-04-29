@@ -36,7 +36,7 @@ describe('CrypterService', () => {
         expect(ans).toBeUndefined();
         expect(error).toBeInstanceOf(BadRequestException);
       }
-    });
+  });
   });
 
   describe('decrypt', () => {

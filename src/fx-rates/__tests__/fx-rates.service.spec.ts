@@ -54,6 +54,21 @@ describe('FxRateService', () => {
       expect(result.fxRate).toEqual('1.20');
     });
 
+    it('should throw bad request if API requests per day reached', async () => {
+      const fromCurrency = 'USD';
+      const toCurrency = 'EUR';
+      const response = {
+        data: {
+          'Realtime Currency Exchange Rate': undefined,
+        },
+      };
+      (axios.get as jest.Mock).mockResolvedValue(response);
+
+      await expect(fxRateService.getFxRates(fromCurrency, toCurrency)).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+
     it('should throw BadRequestException if API request fails', async () => {
       const fromCurrency = 'USD';
       const toCurrency = 'EUR';
@@ -88,7 +103,8 @@ describe('FxRateService', () => {
       const fromCurrency = 'USD';
       const toCurrency = 'EUR';
       const amount = 100;
-      const quoteId = 'q6Y3WD/VYtdlsPCmzby9u+KON//lrrzEw+kL3XHqVc3CLPB4TwoJxQ8AZmqWCiEr';
+      const quoteId =
+        'q6Y3WD/VYtdlsPCmzby9u+KON//lrrzEw+kL3XHqVc3CLPB4TwoJxQ8AZmqWCiEr';
       const response = {
         data: {
           'Realtime Currency Exchange Rate': {
