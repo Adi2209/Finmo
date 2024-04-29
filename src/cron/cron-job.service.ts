@@ -19,13 +19,13 @@ export class CronJob implements OnModuleInit {
       async () => {
         try {
           const response = await axios.get(urlToPing);
-          this.logger.warn(
+          this.logger.log(
             `Ping successful at ${new Date().toLocaleString('en-IN', {
               timeZone: 'Asia/Kolkata',
             })}: ${response.status}`,
           );
         } catch (error) {
-          this.logger.error(`Error pinging URL: ${error.message}`);
+          this.logger.warn(`Error pinging URL: ${error.message}`);
         }
       },
       {

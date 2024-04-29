@@ -113,6 +113,6 @@ export class IpTrackingMiddleware implements NestMiddleware {
       ip,
       expirationTime: new Date(Date.now() + this.banDuration),
     });
-    this.logger.warn(`IP: ${ip} has been banned for 1 minute`);
+    this.logger.log(`IP: ${ip} has been banned for 1 minute`);
   }
 }

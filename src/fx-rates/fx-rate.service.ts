@@ -39,7 +39,7 @@ export class FxRateService {
     const cacheKey = this.generateCacheKey(fromCurrency, toCurrency);
     const cachedFxRate: FxRateResponseType = this.myCache.get(cacheKey);
     if (cachedFxRate) {
-      this.logger.debug('FX Rate found in cache, returning rate from cache');
+      this.logger.log('FX Rate found in cache, returning rate from cache');
       return cachedFxRate;
     }
     const query: FxRateQuery = {
@@ -80,7 +80,7 @@ export class FxRateService {
   ): Promise<FxConversionResponseType> {
     let conversionRate = this.getFxRateFromQuoteId(quoteId);
     if (conversionRate === null) {
-      this.logger.warn('No fx rate found for the given quoteId');
+      this.logger.warn('No fx rate found in the cache for the given quoteId, fetching from third party API');
       conversionRate = (await this.getFxRates(fromCurrency,toCurrency)).fxRate;
     }
     const convertedAmount = amount * parseFloat(conversionRate);
