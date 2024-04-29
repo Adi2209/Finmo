@@ -2,8 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { FxRatesController } from '../fx-rates.controller';
 import { FxRateService } from '../fx-rate.service';
 import { NotFoundException } from '@nestjs/common';
-import { FxConversionDto } from 'src/dto/fxConversion.dto';
-import { FxConversionResponseType } from 'src/types';
+import { FxConversionDto } from '../../dto/fxConversion.dto';
+import { FxConversionResponseType } from '../../types';
 
 describe('FxRatesController', () => {
   let controller: FxRatesController;

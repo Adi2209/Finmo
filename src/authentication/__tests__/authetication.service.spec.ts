@@ -2,8 +2,9 @@ import { AuthenticationService } from '../authentication.service';
 import { Model } from 'mongoose';
 import { Accounts } from 'src/schemas/accounts.model';
 import { JwtService } from '@nestjs/jwt';
-import { NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import bcrypt from 'bcrypt';
+import { UserLoginDto } from 'src/dto/userLogin.dto';
 
 bcrypt.compareSync = jest.fn((password, hashedPassword) => {
   return password === hashedPassword;
@@ -83,7 +84,10 @@ describe('AuthenticationService', () => {
 
   describe('login', () => {
     it('should return access token if login is successful', async () => {
-      const userData = { username: 'testuser', password: 'password' };
+      const userData = {
+        username: 'testuser',
+        password: 'password',
+      } as UserLoginDto;
       const user = { username: 'testuser', _id: '123' };
       jest
         .spyOn(authService, 'validateUser')
@@ -92,20 +96,27 @@ describe('AuthenticationService', () => {
         .spyOn(JwtService.prototype, 'sign')
         .mockReturnValueOnce('accessToken');
 
-      const result = await authService.login(userData);
+      const mockExpectedResult = {
+        accessToken: 'accessToken',
+        email: undefined,
+        id: '123',
+        username: 'testuser',
+      };
 
-      expect(result).toBe('accessToken');
+      const result = await authService.login(userData);
+      expect(result).toEqual(mockExpectedResult);
     });
 
     it('should return message if login fails', async () => {
-      const userData = { username: 'testuser', password: 'invalidPassword' };
+      const userData = {
+        username: 'testuser',
+        password: 'invalidPassword',
+      } as UserLoginDto;
       jest
         .spyOn(AuthenticationService.prototype, 'validateUser')
         .mockReturnValueOnce(null);
 
-      const result = await authService.login(userData);
-
-      expect(result).toEqual({ message: 'Invalid username or password' });
+      await expect( authService.login(userData)).rejects.toThrow(BadRequestException);
     });
   });
 });

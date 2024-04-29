@@ -18,7 +18,7 @@ import {
 } from '@nestjs/swagger';
 import { FxRatesDto } from '../dto/fxRates.dto';
 import { FxConversionDto } from '../dto/fxConversion.dto';
-import { CurrencyValidator } from 'src/validator/CurrencyValidator';
+import { CurrencyValidator } from '../validator/CurrencyValidator';
 
 /**
  * Controller handling routes related to FX rates.
