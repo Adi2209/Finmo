@@ -71,7 +71,7 @@ export class AccountsService {
       account.balance[currency] =
         (account.balance[currency] || 0) + balance[currency];
     }
-
+    account.markModified('balance');
     const response = await account.save();
     return {
       id: response._id,
