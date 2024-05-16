@@ -4,9 +4,9 @@ export const DEPLOYMENT_URL = 'https://forex-h14m.onrender.com/';
 
 export const FX_RATE = 'fx-rate';
 
-export const CACHE_KEY = 'fxRates';
+export const ENCRYPT_KEY = 'fxRates';
 
-export const TTL_EXCHANGE_RATE_SECS = 30;
+export const TTL_EXCHANGE_RATE_SECS = 300;
 
 export const TTL_EXCHANGE_RATE_MS = 30000;
 

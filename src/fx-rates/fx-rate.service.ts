@@ -1,7 +1,7 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import {
   BASE_URL,
-  CACHE_KEY,
+  ENCRYPT_KEY,
   TTL_EXCHANGE_RATE_MS,
   TTL_EXCHANGE_RATE_SECS,
 } from '../config';
@@ -36,7 +36,8 @@ export class FxRateService {
     fromCurrency: string,
     toCurrency: string,
   ): Promise<FxRateResponseType> {
-    const cacheKey = this.generateCacheKey(fromCurrency, toCurrency);
+    const quoteId = this.getQuoteId();
+    const cacheKey = quoteId;
     const cachedFxRate: FxRateResponseType = this.myCache.get(cacheKey);
     if (cachedFxRate) {
       this.logger.log('FX Rate found in cache, returning rate from cache');
@@ -54,13 +55,14 @@ export class FxRateService {
       throw new BadRequestException('Failed to fetch FX Rates, due to 25 free requests per day reached')
     }
     const fxRateResponse = {
-      quoteId: this.getQuoteId(cacheKey),
+      quoteId: quoteId,
       expiry_at: this.getExpiryAt(currentTime),
       fxRate:
         response.data['Realtime Currency Exchange Rate']['5. Exchange Rate'],
     };
 
     this.myCache.set(cacheKey, fxRateResponse, TTL_EXCHANGE_RATE_SECS);
+    console.log('stored: ',this.myCache.data);
     return fxRateResponse;
   }
 
@@ -80,8 +82,8 @@ export class FxRateService {
   ): Promise<FxConversionResponseType> {
     let conversionRate = this.getFxRateFromQuoteId(quoteId);
     if (conversionRate === null) {
-      this.logger.warn('No fx rate found in the cache for the given quoteId, fetching from third party API');
-      conversionRate = (await this.getFxRates(fromCurrency,toCurrency)).fxRate;
+      this.logger.log('No fx rate found in the cache for the given quoteId');
+      throw new NotFoundException('No fx rate found in the cache for the given quoteId');
     }
     const convertedAmount = amount * parseFloat(conversionRate);
     const formattedAmount = formatCurrency(convertedAmount, toCurrency);
@@ -109,8 +111,7 @@ export class FxRateService {
    * @returns The FX rate corresponding to the quote ID, or null if not found.
    */
   private getFxRateFromQuoteId(quoteId: string): string | null {
-    const cacheKey = new CrypterService().decrypt(quoteId);
-    const cachedFxRate: FxRateResponseType = this.myCache.get(cacheKey);
+    const cachedFxRate: FxRateResponseType = this.myCache.get(quoteId);
     if (!cachedFxRate) {
       return null;
     }
@@ -119,22 +120,12 @@ export class FxRateService {
   }
 
   /**
-   * Generates a cache key based on the currencies being converted.
-   * @param fromCurrency The currency code to convert from.
-   * @param toCurrency The currency code to convert to.
-   * @returns The generated cache key.
-   */
-  private generateCacheKey(fromCurrency: string, toCurrency: string): string {
-    return `${CACHE_KEY}_${fromCurrency}_${toCurrency}`;
-  }
-
-  /**
    * Encrypts the cache key to generate a quote ID.
    * @param cacheKey The cache key to encrypt.
    * @returns The encrypted quote ID.
    */
-  private getQuoteId(cacheKey: string): string {
-    const quoteId = new CrypterService().encrypt(cacheKey);
+  private getQuoteId(): string {
+    const quoteId = new CrypterService().encrypt(ENCRYPT_KEY);
     return quoteId;
   }
 
