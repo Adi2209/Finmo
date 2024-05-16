@@ -1,4 +1,4 @@
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import axios from 'axios';
 import { FxRateService } from '../fx-rate.service';
 
@@ -64,9 +64,9 @@ describe('FxRateService', () => {
       };
       (axios.get as jest.Mock).mockResolvedValue(response);
 
-      await expect(fxRateService.getFxRates(fromCurrency, toCurrency)).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(
+        fxRateService.getFxRates(fromCurrency, toCurrency),
+      ).rejects.toThrow(BadRequestException);
     });
 
     it('should throw BadRequestException if API request fails', async () => {
@@ -105,24 +105,9 @@ describe('FxRateService', () => {
       const amount = 100;
       const quoteId =
         'q6Y3WD/VYtdlsPCmzby9u+KON//lrrzEw+kL3XHqVc3CLPB4TwoJxQ8AZmqWCiEr';
-      const response = {
-        data: {
-          'Realtime Currency Exchange Rate': {
-            '5. Exchange Rate': '1.20',
-          },
-        },
-      };
-      // Mocking axios get method to return response
-      (axios.get as jest.Mock).mockResolvedValue(response);
-
-      const result = await fxRateService.convertFXRate(
-        fromCurrency,
-        toCurrency,
-        amount,
-        quoteId,
-      );
-
-      expect(result.convertedAmount).toEqual('€120.00');
+      await expect(
+        fxRateService.convertFXRate(fromCurrency, toCurrency, amount, quoteId),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 });

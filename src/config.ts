@@ -6,7 +6,7 @@ export const FX_RATE = 'fx-rate';
 
 export const ENCRYPT_KEY = 'fxRates';
 
-export const TTL_EXCHANGE_RATE_SECS = 300;
+export const TTL_EXCHANGE_RATE_SECS = 30;
 
 export const TTL_EXCHANGE_RATE_MS = 30000;
 

@@ -61,27 +61,6 @@ describe('AuthenticationService', () => {
     });
   });
 
-  describe('validateToken', () => {
-    it('should return decoded payload if token is valid', async () => {
-      const decodedPayload = { username: 'testuser', userId: '123' };
-      jest.spyOn(jwtService, 'verify').mockReturnValue(decodedPayload);
-
-      const result = await authService.validateToken('validToken');
-
-      expect(result).toEqual(decodedPayload);
-    });
-
-    it('should return null if token is invalid', async () => {
-      jest.spyOn(jwtService, 'verify').mockImplementation(() => {
-        throw new Error('Invalid token');
-      });
-
-      const result = await authService.validateToken('invalidToken');
-
-      expect(result).toBeNull();
-    });
-  });
-
   describe('login', () => {
     it('should return access token if login is successful', async () => {
       const userData = {

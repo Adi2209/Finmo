@@ -48,21 +48,6 @@ export class AuthenticationService {
   }
 
   /**
-   * Validates the authenticity of a token.
-   * @param token The JWT token to validate.
-   * @returns The decoded token payload if valid, or null if invalid.
-   */
-  async validateToken(token: string): Promise<any> {
-    try {
-      const decoded = this.jwtService.verify(token);
-      return decoded;
-    } catch (error) {
-      this.logger.warn(error);
-      return null;
-    }
-  }
-
-  /**
    * Logs in a user and generates an access token.
    * @param userData The user login data.
    * @returns The access token if login is successful, or a message indicating invalid credentials.

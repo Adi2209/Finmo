@@ -94,11 +94,11 @@ describe('AccountsService', () => {
       const account = {
         ...mockAccount,
         save: jest.fn().mockResolvedValueOnce(mockAccount),
+        markModified: jest.fn().mockResolvedValueOnce(balance),
       };
       jest.spyOn(accountsModel, 'findById').mockResolvedValueOnce(account);
 
       const result = await service.topUpAccount(account._id, balance);
-
       expect(result.id).toBe(account._id);
       expect(result.balance).toEqual({ USD: 100, JPY: 200 });
       expect(account.save).toHaveBeenCalledTimes(1);

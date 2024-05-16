@@ -62,12 +62,11 @@ export class FxRateService {
     };
 
     this.myCache.set(cacheKey, fxRateResponse, TTL_EXCHANGE_RATE_SECS);
-    console.log('stored: ',this.myCache.data);
     return fxRateResponse;
   }
 
   /**
-   * Converts an amount from one currency to another based on a provided quote ID or by fetching the FX rate.
+   * Converts an amount from one currency to another based on a provided quoteId
    * @param fromCurrency The currency code to convert from.
    * @param toCurrency The currency code to convert to.
    * @param amount The amount to convert.
